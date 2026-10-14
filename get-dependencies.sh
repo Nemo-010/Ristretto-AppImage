@@ -6,11 +6,23 @@ ARCH=$(uname -m)
 
 echo "Installing package dependencies..."
 echo "---------------------------------------------------------------"
-pacman -Syu --noconfirm ristretto doxygen
+pacman -Syu --noconfirm ristretto doxygen rust
 
 echo "Installing debloated packages..."
 echo "---------------------------------------------------------------"
 get-debloated-pkgs --add-common --prefer-nano
+
+echo "Building glycin-ng with HEIF support..."
+echo "---------------------------------------------------------------"
+git clone -b heif-support https://github.com/Nemo-010/glycin-ng.git ./glycin-ng && (
+	cd ./glycin-ng
+	cargo build --release -p glycin-ng-c
+	cargo build --release -p glycin-ng-libglycin-shim
+)
+
+cp -f ./glycin-ng/target/release/libglycin_ng.so /usr/lib/libglycin_ng.so
+cp -f ./glycin-ng/target/release/libglycin_2.so /usr/lib/libglycin-2.so.0
+chmod +x /usr/lib/libglycin_ng.so /usr/lib/libglycin-2.so.0
 
 # Comment this out if you need an AUR package
 # make-aur-package 
